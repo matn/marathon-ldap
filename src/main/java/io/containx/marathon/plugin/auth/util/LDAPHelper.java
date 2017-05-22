@@ -112,7 +112,12 @@ public final class LDAPHelper {
             if (memberOf != null) {// null if this user belongs to no group at all
                 for (int i = 0; i < memberOf.size(); i++) {
                     try {
-                        Attributes atts = context.getAttributes(memberOf.get(i).toString(), new String[]{"CN"});
+                        String memberGroup =  memberOf.get(i).toString();
+                        if (memberGroup.contains("/")){
+                            LOGGER.warn("LDAP: Found a group containing special character \"/\" for user: {} (groupname: {}). Skipping this group.", username, memberGroup);
+                            continue;
+                        }
+                        Attributes atts = context.getAttributes(memberGroup, new String[]{"CN"});
                         Attribute att = atts.get("CN");
                         memberships.add(att.get().toString());
                     } catch (PartialResultException e) {
